@@ -6,20 +6,22 @@
 # 3️ Create文とAlter文、複数行コメント(/*)の頭に改行を入れる
 
 # 指定されたディレクトリ内のSQLファイルをすべて整形する
+# 置換結果は他のファイルに出力する（元ファイルは書き換えない）
 # $1: ディレクトリパス
 SQL_FILE=$1/*.sql
 
 for file in $SQL_FILE; do
     echo $file
+    output_file="${file%.sql}_formatted.sql"
+    
     # 一行コメントを削除
-    sed -i -e 's/--.*$//g' $file
+    sed 's/--.*$//g' $file |
 
     # 改行を削除
-    tr -d '\n' <$file >$file.tmp
-    mv $file.tmp $file
+    tr -d '\n' |
 
     # Create文とAlter文、複数行コメントの頭に改行を入れる
-    sed -i -e 's/CREATE/\nCREATE/g' $file
-    sed -i -e 's/ALTER/\nALTER/g' $file
-    sed -i -e 's/\/\*/\n\/\*/g' $file
+    sed 's/CREATE/\nCREATE/g' |
+    sed 's/ALTER/\nALTER/g' |
+    sed 's/\/\*/\n\/\*/g' > $output_file
 done
